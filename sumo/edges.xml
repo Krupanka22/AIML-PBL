@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<edges>
+  <edge from="W" to="A" id="W_A" numLanes="2" speed="15" />
+  <edge from="A" to="W" id="A_W" numLanes="2" speed="15" />
+  <edge from="A" to="B" id="A_B" numLanes="2" speed="15" />
+  <edge from="B" to="A" id="B_A" numLanes="2" speed="15" />
+  <edge from="B" to="C" id="B_C" numLanes="2" speed="15" />
+  <edge from="C" to="B" id="C_B" numLanes="2" speed="15" />
+  <edge from="C" to="D" id="C_D" numLanes="2" speed="15" />
+  <edge from="D" to="C" id="D_C" numLanes="2" speed="15" />
+  <edge from="D" to="E" id="D_E" numLanes="2" speed="15" />
+  <edge from="E" to="D" id="E_D" numLanes="2" speed="15" />
+  <edge from="A" to="AN" id="A_AN" numLanes="2" speed="15" />
+  <edge from="AN" to="A" id="AN_A" numLanes="2" speed="15" />
+  <edge from="A" to="AS" id="A_AS" numLanes="2" speed="15" />
+  <edge from="AS" to="A" id="AS_A" numLanes="2" speed="15" />
+  <edge from="B" to="BN" id="B_BN" numLanes="2" speed="15" />
+  <edge from="BN" to="B" id="BN_B" numLanes="2" speed="15" />
+  <edge from="B" to="BS" id="B_BS" numLanes="2" speed="15" />
+  <edge from="BS" to="B" id="BS_B" numLanes="2" speed="15" />
+  <edge from="C" to="CN" id="C_CN" numLanes="2" speed="15" />
+  <edge from="CN" to="C" id="CN_C" numLanes="2" speed="15" />
+  <edge from="C" to="CS" id="C_CS" numLanes="2" speed="15" />
+  <edge from="CS" to="C" id="CS_C" numLanes="2" speed="15" />
+  <edge from="D" to="DN" id="D_DN" numLanes="2" speed="15" />
+  <edge from="DN" to="D" id="DN_D" numLanes="2" speed="15" />
+  <edge from="D" to="DS" id="D_DS" numLanes="2" speed="15" />
+  <edge from="DS" to="D" id="DS_D" numLanes="2" speed="15" />
+</edges>
