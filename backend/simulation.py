@@ -2,7 +2,7 @@ import math
 import random
 import traci
 from network import SIGNALS, NETWORK, KINDS, binary, build, itinerary
-from control import MIN_GREEN, Supervisor, optimize
+from control import MLGreenController, MIN_GREEN, Supervisor, optimize
 from communication import LinkBus
 
 ORIGINS = ["W", "E"] + [s+d for s in SIGNALS for d in "NS"]
@@ -18,6 +18,7 @@ class Simulation:
         self.flow = []
         self.n = self.issued = self.completed = self.entered = 0
         self.supervisors = {s: Supervisor() for s in SIGNALS}
+        self.ml_controller = MLGreenController()
         self.links = {s: traci.trafficlight.getControlledLinks(s) for s in SIGNALS}
         self.axes = {s: [int(link[0][0].split("_")[0].endswith(("N","S"))) for link in links]
                      for s, links in self.links.items()}
@@ -170,7 +171,20 @@ class Simulation:
                 capacity = max(.2,1.6-max(downstream,default=0)/24)
             if sup.stage == "green" and (self.n-sup.start <= 1 or self.n-sup.start >= MIN_GREEN):
                 try:
-                    self.recommend[s] = 25 if self.mode=="fixed" else optimize(sup.axis,self.n-sup.start,queues[s],rates,arrivals,capacity,wait[s])
+                    if self.mode == "fixed":
+                        self.recommend[s] = 25
+                    elif self.mode in ("local", "cascaded", "ml"):
+                        self.recommend[s] = self.ml_controller.recommend(
+                            sup.axis,
+                            self.n-sup.start,
+                            queues[s],
+                            rates,
+                            arrivals,
+                            capacity,
+                            wait[s],
+                        )
+                    else:
+                        self.recommend[s] = optimize(sup.axis,self.n-sup.start,queues[s],rates,arrivals,capacity,wait[s])
                     self.failures.pop(s,None)
                 except (ValueError,ArithmeticError,RuntimeError):
                     self.recommend[s] = MIN_GREEN
@@ -184,7 +198,13 @@ class Simulation:
             self.apply(s)
             info[s] = dict(stage=sup.stage,axis=sup.axis,elapsed=self.n-sup.start,queue=queues[s],wait=wait[s],
                            recommended=self.recommend[s],approved=sup.plan,incoming=incoming,capacity=capacity,
-                           reason=self.failures.get(s) or ("Fixed cycle baseline" if self.mode=="fixed" else "Lowest predicted wait-weighted queue cost over the 55-second horizon"),
+                           reason=self.failures.get(s) or (
+                               "Fixed cycle baseline"
+                               if self.mode=="fixed"
+                               else "Random-Forest ML recommendation trained on 55-second queue-cost outcomes"
+                               if self.mode in ("local","cascaded","ml") and self.ml_controller.available
+                               else "ML model unavailable; rolling-horizon queue-cost fallback"
+                           ),
                            minimum_remaining=max(0,MIN_GREEN-(self.n-sup.start)) if sup.stage=="green" else 0,
                            green_end=sup.start+sup.plan if sup.stage=="green" else None,
                            fairness=wait[s][1-sup.axis]>=40,

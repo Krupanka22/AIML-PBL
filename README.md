@@ -22,7 +22,26 @@ npm.cmd run dev
 
 The server listens on 127.0.0.1:8000. Vite proxies the event stream and controls. The simulation advances one second per tick with a 250 ms display interval. EventSource carries snapshots and HTTP POST carries controls. The SVG map uses the corridor's SUMO coordinates. Select a signal to inspect its inputs, current phase, green plan and received link messages.
 
-Modes are fixed, local, and cascaded. Demand profiles are light, moderate, heavy, rush, uneven, and fluctuating. Disturbances affect arrivals, approach speed, lane permissions or messages to and from the selected signal. Restoring normal operation releases buffered north-approach demand.
+Modes are fixed, local, cascaded, and ml. Fixed uses the baseline cycle; local and cascaded modes use
+the supervised ML green-duration model. Cascaded additionally supplies neighboring arrival forecasts
+and downstream queue feedback. Demand profiles are light, moderate, heavy, rush, uneven, and fluctuating. Disturbances affect arrivals, approach speed, lane permissions or messages to and from the selected signal. Restoring normal operation releases buffered north-approach demand.
+
+### ML signal control
+
+The signal-duration controller uses a scikit-learn `RandomForestRegressor`. It receives the active axis,
+elapsed green time, queues, approach rates, incoming vehicle count, downstream service capacity and
+wait times. The model predicts a green duration in the 10–45 second safety bounds.
+
+Synthetic training examples are labeled with the existing 55-second queue-cost optimizer. This gives
+the ML model supervised examples and keeps the independent `Supervisor` responsible for minimum green,
+yellow, clearance, maximum green and fairness rules.
+
+~~~powershell
+../.venv/Scripts/python backend/train_signal_model.py
+~~~
+
+The resulting model is saved to `models/green_duration.joblib`. At startup, the controller loads it when
+available; otherwise it uses the rolling-horizon optimizer fallback. Disturbances affect arrivals, approach speed, lane permissions or messages to and from the selected signal. Restoring normal operation releases buffered north-approach demand.
 
 ## Experiments
 

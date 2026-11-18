@@ -11,7 +11,7 @@ from pathlib import Path
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--seed", type=int, default=42)
-parser.add_argument("--mode", choices=["fixed","local","cascaded"], default="cascaded")
+parser.add_argument("--mode", choices=["fixed","local","cascaded","ml"], default="ml")
 parser.add_argument("--profile", choices=["light","moderate","heavy","rush","uneven","fluctuating"], default="moderate")
 
 

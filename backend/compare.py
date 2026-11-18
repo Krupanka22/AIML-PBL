@@ -46,7 +46,7 @@ if __name__ == "__main__":
     parser.add_argument("--seconds", type=int, default=300)
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
-    for i, mode in enumerate(("fixed","local","cascaded")):
+    for i, mode in enumerate(("fixed","local","cascaded","ml")):
         row = trial(mode,args.seed,args.seconds,"moderate")
         print(row,flush=True)
         with open("comparison.csv","w" if i==0 else "a",newline="") as out:

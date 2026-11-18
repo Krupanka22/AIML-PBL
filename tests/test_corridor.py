@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"backend"))
 from simulation import Simulation
-from control import Supervisor,MIN_GREEN,MAX_GREEN,YELLOW,CLEAR
+from control import MLGreenController, Supervisor,MIN_GREEN,MAX_GREEN,YELLOW,CLEAR
 
 
 class Safety(unittest.TestCase):
@@ -28,6 +28,20 @@ class Safety(unittest.TestCase):
 
 
 class Corridor(unittest.TestCase):
+    def test_ml_controller_is_bounded(self):
+        controller=MLGreenController(model_path=Path(__file__).resolve().parents[1]/"models"/"missing.joblib")
+        value=controller.recommend(
+            0,
+            10,
+            [20,8],
+            [.4,.2],
+            {5:3,20:2},
+            1.2,
+            [12,5],
+        )
+        self.assertGreaterEqual(value,MIN_GREEN)
+        self.assertLessEqual(value,MAX_GREEN)
+
     def test_live(self):
         sim=Simulation()
         self.addCleanup(sim.close)
